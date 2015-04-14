@@ -9,11 +9,12 @@
     <link href="//fonts.googleapis.com/css?family=RobotoDraft:400,500,700,400italic">
     <link rel="stylesheet" href="lib/ionic/css/ionic.min.css">
 
-    <script src="lib/angular/angular.min.js"></script>
-    <script src="js/app.js"></script>
     <script src="lib/ionic/js/ionic.bundle.min.js"></script>
     <script src="lib/Waves/dist/waves.min.js"></script>
     <script src="lib/ionic-material/dist/material-ionic.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/services.js"></script>
 
     <!-- Overrides -->
     <link rel="stylesheet" href="lib/ionic-material/src/css/overrides/ionic.css">
@@ -52,15 +53,48 @@
 
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body ng-app="trueSight">
+<body ng-app="ts">
     <ion-nav-view>
-      <!-- put templates here. -->
+        <!-- <div class="ionic login animate-pan-in-left" style="background-image: url('../img/dota-background.jpg');" ng-controller="LoginCtrl">
+            <div class="hero no-header flat">
+                <div class="content">
+                    <i class="ion-eye icon hero-icon positive-bg"></i>
+                    <h1>True Sight</h1>
+                </div>
+            </div>
+            <div>
+                <ion-md-input placeholder="Username" ng-model="user.username" highlight-color="balanced" type="text"></ion-md-input>
+                <ion-md-input placeholder="Password" ng-model="user.password" highlight-color="energized" type="password"></ion-md-input>
+            </div>
+            <div id="button-container">
+              <div class="padding">
+                  <button ng-click="login()" class="button button-block button-positive waves-effect waves-light">Login</button>
+              </div>
+              <div class="button-bar">
+                  <button class="button button-small button-outline button-assertive light-bg icon-left ion-social-googleplus waves-effect waves-button waves-light">Google</button>
+                  <button class="button button-small button-outline button-positive light-bg icon-left ion-social-facebook waves-effect waves-button waves-light">Facebook</button>
+              </div>
+              <a ui-sref="search">Next UI page</a>
+            </div>
+        </div> -->
     </ion-nav-view>
     <script>
     Waves.displayEffect();
     setTimeout(function() {
         Mi.motion.panInLeft({
             selector: '.animate-pan-in-left'
+        });
+        // Mi.motion.blinds({
+        //     selector: '.animate-blinds'
+        // });
+        // Mi.motion.slideFadeIn({
+        //     selector: '.animate-slide-fade-in'
+        // });
+        // Mi.motion.slideInRight({
+        //     selector: '.animate-slide-in-right'
+        // });
+        Mi.motion.slideUp({
+            selector: '.animate-slide-up'
         });
     }, 500);
     </script>
