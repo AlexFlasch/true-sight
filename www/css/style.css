@@ -1,1 +1,18 @@
 /* Empty. Add your own CSS if you like */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: auto;
+}
+
+.item-md-label {
+  border-style: none;
+  color: #ddd;
+}
+
+#button-container {
+  background-color: #ddd;
+  height: 100%;
+  margin-top: 15px;
+}
