@@ -1,43 +1,27 @@
-var ts = angular.module('ts', ['ionic', 'ionMdInput']);
+var ts = angular.module('ts', ['ionic', 'firebase']);
 
 ts.config(function($stateProvider, $urlRouterProvider) {
-
-  // Ionic uses AngularUI Router which uses the concept of states
-  // Learn more here: https://github.com/angular-ui/ui-router
-  // Set up the various states which the app can be in.
-  // Each state's controller can be found in controllers.js
+    $urlRouterProvider.otherwise('/login');
 
     $stateProvider.state('login', {
         url: 'login',
-        views: {
-            'login': {
-                templateurl: 'templates/login.html',
-                controller: 'LoginCtrl'
-            }
-        }
-    });
+        template: 'templates/login.html'
+    })
 
-    $stateProvider.state('search', {
+    .state('register', {
+        url: 'register',
+        template: 'templates/register.html'
+    })
+
+    .state('search', {
         url: 'search',
-        views: {
-            'search': {
-                templateUrl: 'templates/search.html',
-                controller: 'SearchCtrl'
-            }
-        }
-    });
+        template: 'templates/search.html'
+    })
 
-    $stateProvider.state('results', {
+    .state('results', {
         url: '/results',
-        views: {
-            'results': {
-                tempalteUrl: 'templates/results.html',
-                controller: 'ResultsCtrl'
-            }
-        }
-    });
-
-    $urlRouterProvider.otherwise('/login');
+        template: 'templates/results.html'
+    })
 });
 
 ts.run(function($ionicPlatform) {
@@ -54,16 +38,17 @@ ts.run(function($ionicPlatform) {
   });
 });
 
-ts.controller('LoginCtrl', function($scope, $state) {
+ts.controller('LoginCtrl', function($scope, $state, $location) {
 
     $scope.user = {};
 
     $scope.login = function() {
         //eventually send data and stuff.
         // $scope.user = angular.copy(user);
+    }
 
-        $state.go('login.search');
-        console.log($state.is('search'));
+    $scope.sendToRegister = function() {
+
     }
 
 });
