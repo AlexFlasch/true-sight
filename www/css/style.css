@@ -50,9 +50,22 @@ h1 {
     color: #ddd;
 }
 
+.pane {
+    background-color: #2c3e50;
+}
+
 .center {
     width: 100%;
     text-align: center;
+}
+
+.bottom {
+    position: absolute;
+    bottom: 0;
+}
+
+.steam-link {
+    color: #ddd;
 }
 
 .radiant {
@@ -112,6 +125,7 @@ h1 {
 	/*border: solid 1px #34495e;*/
 	border: none;
 	border-left: solid 3px #34495e;
+    border-radius: 3px;
 	padding: 10px 40px;
     width: 100%;
 
@@ -156,7 +170,7 @@ h1 {
     width: 90%;
     margin-left: auto;
     margin-right: auto;
-    background-color: rgba(44, 62, 80, .8);
+    background-color: rgba(44, 62, 80, 0);
 }
 
 #loginForm > label {
@@ -180,3 +194,5 @@ h1 {
     background-image: url(../img/login-bg.png);
     background-size: auto 100%;
 }
+
+/* register specific styles */

@@ -1,0 +1,26 @@
+<ion-view view-title="Log in">
+	<ion-contnet>
+		<div class="bgContainer">
+			<div class="center">
+				<h1>True Sight</h1>
+				<img id="tsLogo" src="img/TrueSight.png" alt="">
+			</div>
+			<div class="center">
+				<form ng-submit="login()" name="login-form" ng-controller="LoginCtrl" id="loginForm" class="padding" novalidate>
+					<label class="item-floating-label">
+						<span class="input-label">Username</span>
+						<input ng-model="username" type="text" name="username" class="input radiant" placeholder="Username" required ng-minlength=3 ng-maxlength=20 ng-pattern="/[a-zA-Z]/">
+					</label>
+					<label class="item-floating-label">
+						<span class="input-label">Password</span>
+						<input ng-model="password" type="password" name="password" class="input radiant" placeholder="Password" required ng-minlength=8>
+					</label>
+					<input type="submit" id="loginButton" class="button radiant" value="Login">
+					<input ng-click="sendToRegister()" type="button" id="registerButton" class="button dire" value="Register">
+					<a ui-sref="forgot-password"></a>
+				</form>
+			</div>
+		</div>
+		<a href="http://steampowered.com" class="steam-link bottom center">Powered by Steam</a>
+	</ion-contnet>
+</ion-view>

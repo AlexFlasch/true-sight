@@ -1,0 +1,9 @@
+<ion-view title="Search">
+	<ion-content>
+		<ion-list>
+			<ion-item ng-repeat="result in results" href="#/result/{{result.steamId}}">
+				{{result.displayName}}: Last match {{result.lastMatch}}
+			</ion-item>
+		</ion-list>
+	</ion-content>
+</ion-view>

@@ -1,11 +1,15 @@
 var ts = angular.module('ts', ['ionic', 'firebase']);
 
+// var fb = new Firebase("https://true-sight.firebaseio.com/")
+var key;
+
 ts.config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/login');
 
     $stateProvider.state('login', {
-        url: 'login',
-        template: 'templates/login.html'
+        url: '/login',
+        templateUrl: 'templates/login.html',
+        controller: 'LoginCtrl'
     })
 
     .state('register', {
@@ -38,7 +42,10 @@ ts.run(function($ionicPlatform) {
   });
 });
 
-ts.controller('LoginCtrl', function($scope, $state, $location) {
+ts.controller('LoginCtrl', function($scope, $state, $firebaseObject) {
+
+
+    // key = db.child("https://true-sight.firebaseio.com/apikey");
 
     $scope.user = {};
 
@@ -48,7 +55,7 @@ ts.controller('LoginCtrl', function($scope, $state, $location) {
     }
 
     $scope.sendToRegister = function() {
-
+        $state.go('register');
     }
 
 });
@@ -62,6 +69,14 @@ ts.controller('SearchCtrl', function($scope, $state) {
         displayName: "Flascher",
         lastMatch: new Date(),
     }];
+
+});
+
+ts.controller('RegisterCtrl', function($scope, $state){
+
+    $scope.registerUser = function(input) {
+
+    }
 
 });
 
