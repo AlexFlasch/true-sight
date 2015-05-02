@@ -44,7 +44,7 @@ html, body {
   background-color: #2c3e50;
 }
 
-h1 {
+h1,h2,h3,h4,h5,h6 {
     width: 100%;
     background-color: rgba(44, 62, 80, .8);
     color: #ddd;
@@ -140,6 +140,9 @@ h1 {
 }
 .input.dire {
 }
+.input:focus {
+    color: #ecf0f1;
+}
 .input.radiant:focus {
 	border-left: solid 3px #2ecc71;
 
@@ -152,7 +155,7 @@ h1 {
 }
 
 .input-label {
-    color: #ddd;
+    color: #ecf0f1;
 }
 
 /* login specific styles */
@@ -196,3 +199,6 @@ h1 {
 }
 
 /* register specific styles */
+#createAccountButton {
+    margin-top: 10px;
+}
