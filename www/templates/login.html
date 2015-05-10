@@ -1,4 +1,7 @@
-<ion-view view-title="Log in">
+<ion-view id="loginView" hide-back-button="true" view-title="Log in">
+	<ion-nav-bar class="bar-custom bar-shadow" align-title="center">
+
+	</ion-nav-bar>
 	<ion-content>
 		<div class="bgContainer">
 			<div class="center">
@@ -17,10 +20,9 @@
 					</label>
 					<input type="submit" id="loginButton" class="button radiant" value="Login">
 					<input ng-click="sendToRegister()" type="button" id="registerButton" class="button dire" value="Register">
-					<a ui-sref="forgot-password"></a>
+					<a href="http://steampowered.com" class="steam-link center">Powered by Steam</a>
 				</form>
 			</div>
 		</div>
-		<a href="http://steampowered.com" class="steam-link bottom center">Powered by Steam</a>
 	</ion-content>
 </ion-view>

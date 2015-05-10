@@ -1,8 +1,11 @@
-var app = angular.module('app', ['ionic', 'firebase']);
+var app = angular.module('app', ['ionic']);
 
-var key;
+app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
+    $httpProvider.defaults.useXDomain = true;
+    delete $httpProvider.defaults.headers.common["X-Requested-With"];
+    $httpProvider.defaults.headers.common["Accept"] = "application/json";
+    $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
 
-app.config(function($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/login');
 
     $stateProvider.state('login', {
@@ -18,17 +21,35 @@ app.config(function($stateProvider, $urlRouterProvider) {
     })
 
     .state('search', {
-        url: 'search',
-        template: 'templates/search.html'
+        url: '/search',
+        templateUrl: 'templates/search.html',
+        controller: 'SearchCtrl'
     })
 
     .state('results', {
-        url: '/results',
-        template: 'templates/results.html'
+        url: '/results/:steamId',
+        templateUrl: 'templates/results.html',
+        controller: 'ResultsCtrl',
+        resolve: {
+            results: function(matchResults, $stateParams){
+                return matchResults.all($stateParams.steamId);
+            }
+        }
+    })
+
+    .state('details', {
+        url: '/details:matchId',
+        templateUrl: 'templates/match-details.html',
+        controller: 'DetailsCtrl',
+        resolve: {
+            details: function(matchDetails, $stateParams){
+                return matchDetails.all($stateParams.matchId);
+            }
+        }
     })
 });
 
-app.run(function($ionicPlatform, $rootScope, $state, fbAuth, $ionicLoading) {
+app.run(function($ionicPlatform, $rootScope, $state, $ionicLoading) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -40,57 +61,58 @@ app.run(function($ionicPlatform, $rootScope, $state, fbAuth, $ionicLoading) {
           StatusBar.styleDefault();
         }
 
-        ionic.Platform.fullscreen();
+        $rootScope.baseUrl = 'https://true-sight.azurewebsites.net/api/steamapi/';
+        $rootScope.currentUserEmail = '';
 
-        $rootScope.fbUrl = 'https://true-sight.firebasio.com'
-
-        fbAuth.$onAuth(function (authData){
-            if(authData) {
-                console.log('Logged in as: ' + authData.uid);
-            } else {
-                console.log('Logged out');
-                $ionicLoading.hide();
-                $state.go('login');
+        $ionicPlatform.registerBackButtonAction(function(){
+            if($state.current.name == 'login'){
+                return;
+            }else{
+                navigator.app.backHistory();
             }
-        });
+        }, 100);
 
-        $rootScope.logout = function () {
-            console.log("Logging out from the app.");
+        $rootScope.showLoading = function(text){
             $ionicLoading.show({
-                template: 'Logging out...'
+                content: '<i class="ion-loading"></i> <br/>' + text,
             });
-            fbAuth.$unauth();
-        };
+        }
+
+        $rootScope.hideLoading = function(){
+            $ionicLoading.hide();
+        }
 
         $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
-            if(error === 'AUTH_REQUIRED'){
-                $state.go('login')
-            } else {
-                console.log('Error: ' + error + '\n'
-                    + 'Event: ' + event + '\n'
-                    + 'toState: ' + toState + '\n'
-                    + 'toParams: ' + toParams + '\n'
-                    + 'fromState: ' + fromState + '\n'
-                    + 'fromParams: ' + fromParams + '\n'
-                );
-            }
-        })
+            console.log('Error: ' + error + '\n'
+                + 'Event: ' + event + '\n'
+                + 'toState: ' + toState + '\n'
+                + 'toParams: ' + toParams + '\n'
+                + 'fromState: ' + fromState + '\n'
+                + 'fromParams: ' + fromParams + '\n'
+            );
+        });
     });
 });
 
-app.controller('LoginCtrl', function($scope, $state, $firebaseAuth) {
+app.controller('LoginCtrl', function($scope, $state, $http, $rootScope) {
 
-
-    // key = db.child("https://true-sight.firebaseio.com/apikey");
-
-    var user = {};
+    $scope.user = {};
 
     $scope.login = function() {
-        var email = $scope.user.email;
-        var password = $scope.user.password;
+        $rootScope.showLoading('Logging In...');
+        $http.get($rootScope.baseUrl + 'login/' + $scope.user.email + '/' + $scope.user.password)
+            .then(function(response){
+                //if success $rootScope.currentUserEmail = user.email
+                if(response.data.success){
+                    $rootScope.currentUserEmail = $scope.user.email;
 
-        console.log(email, password);
-
+                    $state.go('search');
+                }
+                $rootScope.hideLoading();
+            }, function(error){
+                console.log(error);
+                $rootScope.hideLoading();
+            });
     }
 
     $scope.sendToRegister = function() {
@@ -99,36 +121,174 @@ app.controller('LoginCtrl', function($scope, $state, $firebaseAuth) {
 
 });
 
-app.controller('SearchCtrl', function($scope, $state) {
+app.controller('SearchCtrl', function($scope, $state, $http, $rootScope, $ionicLoading, $ionicHistory, $ionicModal, matchResults) {
+
+    $scope.vanityName;
+    $scope.saveId = false;
+
+    if(window.localStorage['vanityName'] !== undefined){
+        $scope.vanityName = window.localStorage['vanityName'];
+    }
+
+    $scope.search = function() {
+        $rootScope.showLoading('Searching...');
+        if($rootScope.currentUserEmail == ''){
+            $rootScope.hideLoading();
+            //tell user to re-log. they got here before they should be somehow.
+            return;
+        }
+        if($scope.saveId){
+            window.localStorage['vanityName'] = $scope.vanityName;
+        }
+        $http.get($rootScope.baseUrl + 'getsteamid/' + $rootScope.currentUserEmail + '/' + $scope.vanityName + '/' + $scope.saveId )
+            .then(function(response){
+                if(response.data.success == 1){
+                    $rootScope.hideLoading();
+                    $state.transitionTo('results', {
+                        steamId: response.data.steamid
+                    });
+                }
+                else {
+                    $rootScope.hideLoading();
+                    console.log(response);
+                }
+            }, function(error){
+                console.log(error);
+                $rootScope.hideLoading();
+            });
+    }
+
+    $scope.logout = function(){
+        $rootScope.currentUserEmail = '';
+        $ionicHistory.clearHistory();
+        $ionicHistory.clearCache();
+        $state.go('login');
+    }
+
+    $ionicModal.fromTemplateUrl('templates/help-modal.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.modal = modal;
+    });
+    $scope.showModal = function() {
+        $scope.modal.show();
+    };
+    $scope.closeModal = function() {
+        $scope.modal.hide();
+    };
+
+    //cleanup modal
+    $scope.$on('$destroy', function(){
+        $scope.modal.remove();
+    });
 
 });
 
-app.controller('RegisterCtrl', function($scope, $state, $firebaseAuth, $rootScope){
+app.controller('RegisterCtrl', function($scope, $state, $http, $rootScope){
 
     $scope.newUser = {};
 
-    var ref = new Firebase('https://true-sight.firebaseio.com');
-    var auth = $firebaseAuth(ref);
-
     $scope.createUser = function(user) {
-        auth.$createUser({
-            username: $scope.newUser.username,
-            email: $scope.newUser.email,
-            password: $scope.newUser.password
-        }).then(function(userData){
-            ref.child('users').child(userData.uid).set({
-                username: $scope.newUser.username,
-                email: $scope.newUser.email,
-                password: $scope.newUser.password
+        $rootScope.showLoading('Creating account...');
+        $http.get($rootScope.baseUrl + 'register/' + $scope.newUser.email + '/' + $scope.newUser.password )
+            .then(function(response){
+                if(response.data.success){
+                    $state.go('search');
+                }
+                $rootScope.hideLoading();
+            }, function(error){
+                console.log(error);
+                $rootScope.hideLoading();
             })
-        }).catch(function(error){
-            alert("Error: " + error);
-        });
     }
 
 });
 
-app.factory('fbAuth', ['$firebaseAuth', '$rootScope', function($firebaseAuth, $rootScope){
-    var fb = new Firebase('https://true-sight.firebaseio.com');
-    return $firebaseAuth(fb);
-}]);
+app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $rootScope, $stateParams, matchResults, matchDetails){
+
+    $scope.steamId = $stateParams.steamId; //Flascher should be 76561198011514271
+    $scope.results = [];
+    $scope.statusCode = -1;
+
+    $scope.getHeaderStyle = function(victory){
+        if(victory){
+            return "radiant";
+        } else {
+            return "dire";
+        }
+    }
+
+    $scope.getResults = function(){
+        $rootScope.showLoading();
+        var promise = matchResults.all($scope.steamId);
+        promise.then(function(response){
+            if(response.data.response.success){
+                $scope.statusCode = response.data.result.status;
+                if($scope.statusCode == 15){
+                    $rootScope.hideLoading();
+                    return;
+                }
+                var resultData = [];
+                var matches = response.data.result.matches;
+                for(var i = 0; i < matches.length; i++){
+
+                    var temp = {
+
+                    }
+
+                    var detPromise = matchDetails.all(matches[i].match_id);
+                    detPromise.then(function(response){
+                        if(response.data.response.success){
+                            var detailsData = [];
+                            var details = response;
+                        }
+                    })
+
+                    resultData.push(matches[i]);
+                }
+            }
+            $rootScope.hideLoading();
+            $scope.results = resultData;
+        }, function(error){
+            console.log(error);
+        });
+    };
+
+    $ionicModal.fromTemplateUrl('templates/result-help-modal.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+    }).then(function(modal) {
+        $scope.modal = modal;
+    });
+    $scope.showModal = function() {
+        $scope.modal.show();
+    };
+    $scope.closeModal = function() {
+        $scope.modal.hide();
+    };
+
+    //cleanup modal
+    $scope.$on('$destroy', function(){
+        $scope.modal.remove();
+    });
+
+    $scope.getResults();
+
+})
+
+app.factory('matchResults', function($http){
+    return {
+        all: function(steamId){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getmatchhistory/' + steamId);
+        }
+    }
+});
+
+app.factory('matchDetails', function($http){
+    return {
+        all: function(matchId){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getmatchdetails/' + matchId);
+        }
+    }
+});

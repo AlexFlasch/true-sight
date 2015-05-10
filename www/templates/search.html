@@ -1,9 +1,24 @@
-<ion-view title="Search">
+<ion-view hide-back-button="true" title="Search">
+	<ion-nav-buttons side="right">
+		<button id="logoutButton" class="nav-button dire" ng-click="logout()">
+			<i class="ion-log-out"></i>
+		</button>
+	</ion-nav-buttons>
 	<ion-content>
-		<ion-list>
-			<ion-item ng-repeat="result in results" href="#/result/{{result.steamId}}">
-				{{result.displayName}}: Last match {{result.lastMatch}}
-			</ion-item>
-		</ion-list>
+		<div class="center center-vert" ng-controller="SearchCtrl">
+			<h3>Enter a Steam vanity name here</h3>
+			<a href="#" class="link" ng-click="showModal()">
+				How do I get my vanity name?
+			</a>
+			<div id="searchForm" class="center">
+				<label class="item-floating-label">
+					<span class="input-label">Vanity Name</span>
+					<input ng-model="vanityName" type="text" name="vanityName" class="input radiant" placeholder="Vanity Name" required>
+				</label>
+				<button id="searchButton" class="button radiant" ng-click="search()">Search</button>
+				<input id="saveVanity" type="checkbox" ng-model="saveId">
+				<label for="saveVanity">Remember this name?</label>
+			</div>
+		</div>
 	</ion-content>
 </ion-view>
