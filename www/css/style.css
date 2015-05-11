@@ -251,9 +251,23 @@ h1,h2,h3,h4,h5,h6 {
 
 .detail-row {
     font-size: .65em;
+    width: 100%;
+}
+
+.detail-row.odd {
+    background-color: #455a6f;
+}
+
+.detail-row > td {
+    vertical-align: middle;
+}
+
+.stats-row > td {
+    vertical-align: middle;
 }
 
 .detail-hero-portrait {
+    margin-top: 10%;
     width: 12vw;
 }
 

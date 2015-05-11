@@ -59,7 +59,7 @@ app.run(function($ionicPlatform, $rootScope, $state, $ionicLoading, heroListFact
         if (window.StatusBar) {
           // org.apache.cordova.statusbar required
           StatusBar.styleDefault();
-        }
+      }
 
         $rootScope.baseUrl = 'https://true-sight.azurewebsites.net/api/steamapi/';
         $rootScope.currentUserEmail = '';
@@ -383,6 +383,7 @@ app.controller('DetailsCtrl', function($scope, $state, $http, $rootScope, $state
 
     $scope.getDetails = function() {
         $rootScope.showLoading();
+
         var matchDetailsPromise = matchDetails.all($scope.matchId);
         matchDetailsPromise.then(function(response){
             if(response.data.response.success){
@@ -414,12 +415,13 @@ app.controller('DetailsCtrl', function($scope, $state, $http, $rootScope, $state
 
                 for(var player = 0; player < $scope.details.players.length; player++){
                     if($scope.details.players[player].account_id == $rootScope.currentUserAccountId){
-                        $scope.details.victory == (
+                        $scope.details.victory = (
                             ($scope.details.players[player].player_slot <= 4
                                 && $scope.details.radiant_win)
                                 || ($scope.details.players[player].player_slot > 4
                                 && !$scope.details.radiant_win)
                         );
+                        break;
                     }
                 }
 
