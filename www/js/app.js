@@ -258,7 +258,7 @@ app.controller('RegisterCtrl', function($scope, $state, $http, $rootScope){
 
 });
 
-app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $rootScope, $stateParams, $q, matchResults, matchDetails){
+app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $rootScope, $stateParams, matchResults){
 
     $scope.steamId = $stateParams.steamId; //Flascher should be 76561198011514271
     $scope.results = [];
@@ -280,6 +280,7 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
     }
 
     var getMatches = function(){
+        $scope.results = [];
         var matches = [];
 
         var matchResultPromise = getMatchHistory();
@@ -312,11 +313,11 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
                         }
                     }
 
-                    var gameMode = '';
+                    var lobbyType = '';
 
-                    for(var mode = 0; mode < $rootScope.modeList.length; mode++){
-                        if($rootScope.modeList[mode].id == $scope.results[result].lobby_type){
-                            gameMode = $rootScope.modeList[mode].name;
+                    for(var lobby = 0; lobby < $rootScope.lobbyList.length; lobby++){
+                        if($rootScope.lobbyList[lobby].id == $scope.results[result].lobby_type){
+                            lobbyType = $rootScope.lobbyList[lobby].name;
                             break;
                         }
                     }
@@ -328,7 +329,7 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
                     $scope.results[result].heroLocalizedName = heroLocalizedName;
                     $scope.results[result].heroName = heroName;
                     $scope.results[result].daysAgo = daysAgo;
-                    $scope.results[result].gameMode = gameMode;
+                    $scope.results[result].lobbyType = lobbyType;
                 }
                 $rootScope.hideLoading();
             }
@@ -339,6 +340,12 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
 
     var getMatchHistory = function(){
         return matchResults.all($scope.steamId);
+    }
+
+    $scope.sendToMatchDetails = function(matchId){
+        $state.transitionTo('details',{
+            matchId: matchId
+        });
     }
 
     $ionicModal.fromTemplateUrl('templates/result-help-modal.html', {
@@ -360,6 +367,80 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
     });
 
     $scope.getResults();
+
+});
+
+app.controller('DetailsCtrl', function($scope, $state, $http, $rootScope, $stateParams, matchDetails){
+
+    $scope.details = {};
+    $scope.radiantPlayers = [];
+    $scope.direPlayers = [];
+    $scope.matchId = $stateParams.matchId;
+
+    $scope.getSubheaderType = function(victory){
+        return victory ? "subheader-radiant" : "subheader-dire";
+    }
+
+    $scope.getDetails = function() {
+        $rootScope.showLoading();
+        var matchDetailsPromise = matchDetails.all($scope.matchId);
+        matchDetailsPromise.then(function(response){
+            if(response.data.response.success){
+                $scope.details = response.data.result;
+
+                //add players to their respective teams' array
+                for(var i = 0; i < $scope.details.players.length; i++){
+                    var heroName = '';
+                    if(i <= 4){
+                        for(var hero = 0; hero < $rootScope.heroList.length; hero++){
+                            if($rootScope.heroList[hero].id == $scope.details.players[i].hero_id){
+                                heroName = $rootScope.heroList[hero].name;
+                                break;
+                            }
+                        }
+                        $scope.details.players[i].heroName = heroName;
+                        $scope.radiantPlayers.push($scope.details.players[i]);
+                    } else {
+                        for(var hero = 0; hero < $rootScope.heroList.length; hero++){
+                            if($rootScope.heroList[hero].id == $scope.details.players[i].hero_id){
+                                heroName = $rootScope.heroList[hero].name;
+                                break;
+                            }
+                        }
+                        $scope.details.players[i].heroName = heroName;
+                        $scope.direPlayers.push($scope.details.players[i]);
+                    }
+                }
+
+                for(var player = 0; player < $scope.details.players.length; player++){
+                    if($scope.details.players[player].account_id == $rootScope.currentUserAccountId){
+                        $scope.details.victory == (
+                            ($scope.details.players[player].player_slot <= 4
+                                && $scope.details.radiant_win)
+                                || ($scope.details.players[player].player_slot > 4
+                                && !$scope.details.radiant_win)
+                        );
+                    }
+                }
+
+                var gameMode = '';
+
+                for(var mode = 0; mode < $rootScope.modeList.length; mode++){
+                    if($rootScope.modeList[mode].id == $scope.details.game_mode){
+                        gameMode = $rootScope.modeList[mode].name;
+                        break;
+                    }
+                }
+
+                $scope.details.gameMode = gameMode;
+                $rootScope.hideLoading();
+            }
+        }, function(error){
+            console.log(error);
+        });
+    };
+
+    $scope.getDetails();
 
 });
 

@@ -1,3 +1,93 @@
 <ion-view view-title="Match Details">
-    
+    <div class="bar bar-subheader" ng-class="getSubheaderType(details.victory)">
+        <h3 class="title">{{details.victory ? "Victory" : "Defeat"}}</h3>
+    </div>
+    <ion-content class="has-subheader">
+        <div  class="card">
+            <div class="item item-divider radiant">
+                <span>Radiant Team</span>
+            </div>
+            <div class="item item-text-wrap">
+                <table class="center">
+                    <thead>
+                        <th>Hero</th>
+                        <th>Level</th>
+                        <th>K</th>
+                        <th>D</th>
+                        <th>A</th>
+                        <th>Gold</th>
+                        <th>LH</th>
+                        <th>DN</th>
+                        <th>XPM</th>
+                        <th>GPM</th>
+                        <th>HD</th>
+                        <th>HH</th>
+                        <th>TD</th>
+                        <th>Items</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="player in radiantPlayers" class="detail-row">
+                            <td><img ng-src="http://cdn.dota2.com/apps/dota2/images/heroes/{{player.heroName}}_sb.png" alt="" class="detail-hero-portrait"></td>
+                            <td>{{player.level}}</td>
+                            <td>{{player.kills}}</td>
+                            <td>{{player.deaths}}</td>
+                            <td>{{player.assists}}</td>
+                            <td>{{player.gold}}</td>
+                            <td>{{player.last_hits}}</td>
+                            <td>{{player.denies}}</td>
+                            <td>{{player.xp_per_min}}</td>
+                            <td>{{player.gold_per_min}}</td>
+                            <td>{{player.hero_damage}}</td>
+                            <td>{{player.hero_healing}}</td>
+                            <td>{{player.tower_damage}}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="item item-divider dire">
+                <span>Dire Team</span>
+            </div>
+            <div class="item item-text-wrap">
+                <table class="center">
+                    <thead>
+                        <th>Hero</th>
+                        <th>Level</th>
+                        <th>K</th>
+                        <th>D</th>
+                        <th>A</th>
+                        <th>Gold</th>
+                        <th>LH</th>
+                        <th>DN</th>
+                        <th>XPM</th>
+                        <th>GPM</th>
+                        <th>HD</th>
+                        <th>HH</th>
+                        <th>TD</th>
+                        <th>Items</th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="player in direPlayers" class="detail-row">
+                            <td><img ng-src="http://cdn.dota2.com/apps/dota2/images/heroes/{{player.heroName}}_sb.png" alt="" class="detail-hero-portrait"></td>
+                            <td>{{player.level}}</td>
+                            <td>{{player.kills}}</td>
+                            <td>{{player.deaths}}</td>
+                            <td>{{player.assists}}</td>
+                            <td>{{player.gold}}</td>
+                            <td>{{player.last_hits}}</td>
+                            <td>{{player.denies}}</td>
+                            <td>{{player.xp_per_min}}</td>
+                            <td>{{player.gold_per_min}}</td>
+                            <td>{{player.hero_damage}}</td>
+                            <td>{{player.hero_healing}}</td>
+                            <td>{{player.tower_damage}}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </ion-content>
 </ion-view>

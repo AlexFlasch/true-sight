@@ -10,21 +10,21 @@
             <br>
             <a href="#" ng-click="showModal()" class="link">How do I make my matchmaking history public?</a>
         </div>
-        <div class="card" ng-repeat="result in results">
+        <div class="card" ng-repeat="result in results" ng-click="sendToMatchDetails(result.match_id)">
             <div class="item item-text-wrap">
-                <table>
+                <table class="result-display-table">
                     <tr>
-                        <td>
+                        <td class="hero-img-cell">
                             <img class="hero-portrait" ng-src="http://cdn.dota2.com/apps/dota2/images/heroes/{{result.heroName}}_lg.png" alt="Hero Portrait">
                         </td>
                         <td>
                             <table class="center">
                                 <tr>
                                     <td>{{result.heroLocalizedName}}</td>
-                                    <td>{{result.lobbyType == 7 ? "Ranked" : "Normal"}}</td>
+                                    <td>{{result.lobby_type == 7 ? "Ranked" : "Normal"}}</td>
                                 </tr>
                                 <tr>
-                                    <td>{{result.daysAgo}}</td>
+                                    <td>{{result.daysAgo}} days ago</td>
                                     <td>{{result.lobbyType}}</td>
                                 </tr>
                             </table>

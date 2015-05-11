@@ -226,6 +226,7 @@ h1,h2,h3,h4,h5,h6 {
     border-width: 0px;
     padding: 0;
     border: 0;
+    font-size: .75em;
 }
 
 .card > .item-text-wrap > table {
@@ -234,21 +235,44 @@ h1,h2,h3,h4,h5,h6 {
 
 .card > .item-divider {
     color: #ddd;
-    font-size: .75em;
-    height: 5px;
-    min-height: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
     border: 0;
     border-bottom-color: transparent !important;
 }
 
+.card > .item-divider.radiant {
+    color: #ddd;
+    background-color: #2ecc71;
+}
+
 .card > .item-divider.dire {
+    color: #ddd;
     background-color: #e74c3c;
 }
 
-.card > .item-divider.radiant {
+.detail-row {
+    font-size: .65em;
+}
+
+.detail-hero-portrait {
+    width: 12vw;
+}
+
+.subheader-dire {
+    background-color: #e74c3c;
+    background-image: none;
+}
+
+.subheader-dire > .title {
+    margin: 0;
+}
+
+.subheader-radiant > .title {
+    margin: 0;
+}
+
+.subheader-radiant {
     background-color: #2ecc71;
+    background-image: none;
 }
 
 /* login specific styles */
@@ -341,9 +365,27 @@ ion-modal-view > ion-content{
 }
 
 .hero-portrait {
-    width: 60%;
+    width: 25vw;
+    height: auto;
     margin-top: 5px;
     margin-left: 5px;
+}
+
+.result-display-table {
+    width: 100%;
+    margin-bottom: 3px;
+    padding: 0;
+    font-size: .75em;
+}
+
+.result-display-table > tbody > tr {
+
+}
+
+.result-display-table > tbody > tr > td {
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 #gearImg {
