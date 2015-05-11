@@ -215,10 +215,21 @@ h1,h2,h3,h4,h5,h6 {
     color: #ecf0f1;
 }
 
+.card {
+    background-color: transparent;
+}
+
 .card > .item-text-wrap {
     background-color: #34495e;
     color: #ddd;
+    margin-bottom: -5px;
     border-width: 0px;
+    padding: 0;
+    border: 0;
+}
+
+.card > .item-text-wrap > table {
+    padding-bottom: 5px;
 }
 
 .card > .item-divider {
@@ -327,6 +338,12 @@ ion-modal-view > ion-content{
     margin-top: 10%;
     font-size: .75em;
     text-align: center;
+}
+
+.hero-portrait {
+    width: 60%;
+    margin-top: 5px;
+    margin-left: 5px;
 }
 
 #gearImg {

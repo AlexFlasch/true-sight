@@ -253,7 +253,7 @@ app.controller('RegisterCtrl', function($scope, $state, $http, $rootScope){
             }, function(error){
                 console.log(error);
                 $rootScope.hideLoading();
-            })
+            });
     }
 
 });
@@ -276,95 +276,69 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
         var resultData = [{}];
         $rootScope.showLoading();
 
-        $q.all([
-            getMatches(),
-            getMatchDetails()
-        ]).then(function(data){
-            resultData = data;
-            $rootScope.hideLoading();
-            $scope.results = resultData;
-        });
+        getMatches();
     }
 
     var getMatches = function(){
         var matches = [];
 
-        var promise = matchResults.all($scope.steamId);
-        promise.then(function(response){
+        var matchResultPromise = getMatchHistory();
+        matchResultPromise.then(function(response) {
             if(response.data.response.success){
                 $scope.statusCode = response.data.result.status;
                 if($scope.statusCode == 15){
                     $rootScope.hideLoading();
                     return;
                 }
-                matches = response.data.result.matches;
+                $scope.results = response.data.result.matches;
+                for(var result = 0; result < $scope.results.length; result++){
+                    var playerObj = {};
+
+                    for(var player = 0; player < $scope.results[result].players.length; player++){
+                        if($scope.results[result].players[player].account_id == $rootScope.currentUserAccountId){
+                            playerObj = $scope.results[result].players[player];
+                            break;
+                        }
+                    }
+
+                    var heroLocalizedName = '';
+                    var heroName = '';
+
+                    for(var hero = 0; hero < $rootScope.heroList.length; hero++){
+                        if($rootScope.heroList[hero].id == playerObj.hero_id){
+                            heroName = $rootScope.heroList[hero].name;
+                            heroLocalizedName = $rootScope.heroList[hero].localized_name;
+                            break;
+                        }
+                    }
+
+                    var gameMode = '';
+
+                    for(var mode = 0; mode < $rootScope.modeList.length; mode++){
+                        if($rootScope.modeList[mode].id == $scope.results[result].lobby_type){
+                            gameMode = $rootScope.modeList[mode].name;
+                            break;
+                        }
+                    }
+
+                    var tempDate = new Date(parseInt($scope.results[result].start_time*1000));
+                    var today = new Date();
+                    var daysAgo = Math.round((today - tempDate)/(1000*60*60*24));
+
+                    $scope.results[result].heroLocalizedName = heroLocalizedName;
+                    $scope.results[result].heroName = heroName;
+                    $scope.results[result].daysAgo = daysAgo;
+                    $scope.results[result].gameMode = gameMode;
+                }
+                $rootScope.hideLoading();
             }
         }, function(error){
             console.log(error);
         });
-
-        return matches;
     };
 
-    var getMatchDetails = function(matches){
-        var matchdetails = {};
-
-        //loop over every match in the array.
-        for(match in matches){
-            var detPromise = matchDetails.all(match.match_id);
-            detPromise.then(function(response){
-                if(response.data.response.success){
-                    var detailsData = [];
-                    var details = response.data.result;
-
-                    var currentPlayer = {};
-
-                    //find the player who whose match history this is
-                    for(var j = 0; j < details.players.length; j++){
-                        if(details.players[j].account_id == $rootScope.currentUserAccountId){
-                            currentPlayer = details.players[j];
-                            if(j <= 4) {
-                                currentPlayer.team = "radiant";
-                            } else {
-                                currentPlayer.team = "dire";
-                            }
-                        }
-                    }
-
-                    var tempDate = new Date(parseInt(details.start_time*1000));
-                    var today = new Date();
-
-                    var daysAgo = Math.round((today - tempDate)/(1000*60*60*24));
-
-                    var heroName = '';
-                    for(hero in $rootScope.heroList){
-                        if(hero.id == currentPlayer.hero_id){
-                            heroName = hero.localized_name;
-                        }
-                    }
-
-                    matchdetails.duration = details.duration;
-                    matchdetails.lobbyType = details.lobby_type;
-                    matchdetails.matchId = details.match_id;
-                    matchdetails.players = details.players;
-                    matchdetails.victory = ((details.radiant_victory && currentPlayer.team == "radiant")
-                                        || (!details.radiant_victory && currentPlayer.team == "dire"));
-                    matchdetails.daysAgo = daysAgo;
-                    matchdetails.kills = currentPlayer.kills;
-                    matchdetails.deaths = currentPlayer.deaths;
-                    matchdetails.assists = currentPlayer.assists;
-                    matchdetails.playerHero = heroName;
-                    matchdetails.playerheroId = currentPlayer.hero_id;
-
-                    match.matchdetails = matchdetails;
-                } else {
-                    //not really sure... assign default values?
-                }
-            }, function(error){
-                console.log(error);
-                //set temp's values to be default or something.
-            });
-        }
+    var getMatchHistory = function(){
+        return matchResults.all($scope.steamId);
     }
 
     $ionicModal.fromTemplateUrl('templates/result-help-modal.html', {
@@ -387,7 +361,7 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
 
     $scope.getResults();
 
-})
+});
 
 app.factory('matchResults', function($http){
     return {

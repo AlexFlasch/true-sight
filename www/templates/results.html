@@ -11,25 +11,26 @@
             <a href="#" ng-click="showModal()" class="link">How do I make my matchmaking history public?</a>
         </div>
         <div class="card" ng-repeat="result in results">
-            <div class="item item-divider" ng-class="getHeaderStyle(result.victory)">
-                <!-- {{result.victory ? "Victory" : "Defeat"}} -->
-            </div>
             <div class="item item-text-wrap">
-                <img class="hero-portrait left" ng-src="http://cdn.dota2.com/apps/dota2/images/heroes/{{name}}_lg.png" alt="Hero Portrait">
-                <table class="center">
+                <table>
                     <tr>
-                        <td>{{result.localizedHeroName}}</td>
-                        <td>{{result.lobbyType == 7 ? "Ranked" : "Normal"}}</td>
-                    </tr>
-                    <tr>
-                        <td>{{result.daysAgo}}</td>
-                        <td>{{result.lobbyType}}</td>
+                        <td>
+                            <img class="hero-portrait" ng-src="http://cdn.dota2.com/apps/dota2/images/heroes/{{result.heroName}}_lg.png" alt="Hero Portrait">
+                        </td>
+                        <td>
+                            <table class="center">
+                                <tr>
+                                    <td>{{result.heroLocalizedName}}</td>
+                                    <td>{{result.lobbyType == 7 ? "Ranked" : "Normal"}}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{result.daysAgo}}</td>
+                                    <td>{{result.lobbyType}}</td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
                 </table>
-                <div class="right">
-                    <span class="left">{{duration}}</span>
-                    <div class="right">{{kills}} / {{deaths}} / {{assists}}</div>
-                </div>
             </div>
         </div>
     </ion-content>
