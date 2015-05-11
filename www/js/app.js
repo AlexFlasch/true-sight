@@ -49,7 +49,7 @@ app.config(function($stateProvider, $urlRouterProvider, $httpProvider) {
     })
 });
 
-app.run(function($ionicPlatform, $rootScope, $state, $ionicLoading) {
+app.run(function($ionicPlatform, $rootScope, $state, $ionicLoading, heroListFactory, itemListFactory, abilityListFactory, lobbyListFactory, modeListFactory, regionListFactory) {
     $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -63,6 +63,57 @@ app.run(function($ionicPlatform, $rootScope, $state, $ionicLoading) {
 
         $rootScope.baseUrl = 'https://true-sight.azurewebsites.net/api/steamapi/';
         $rootScope.currentUserEmail = '';
+        $rootScope.currentUserAccountId;
+        $rootScope.currentUserSteamId;
+
+        $rootScope.heroList;
+        $rootScope.itemList;
+        $rootScope.abilityList;
+        $rootScope.lobbyList;
+        $rootScope.modeList;
+        $rootScope.regionList;
+
+        var heroPromise = heroListFactory.all();
+        heroPromise.then(function(response){
+            $rootScope.heroList = response.data.heroes;
+        }, function(error){
+            console.log(error);
+        });
+
+        var itemPromise = itemListFactory.all();
+        itemPromise.then(function(response){
+            $rootScope.itemList = response.data.items;
+        }, function(error){
+            console.log(error);
+        });
+
+        var abilityPromise = abilityListFactory.all();
+        abilityPromise.then(function(response){
+            $rootScope.abilityList = response.data.abilities;
+        }, function(error){
+            console.log(error);
+        });
+
+        var lobbyPromise = lobbyListFactory.all();
+        lobbyPromise.then(function(response){
+            $rootScope.lobbyList = response.data.lobbies;
+        }, function(error){
+            console.log(error);
+        });
+
+        var modePromise = modeListFactory.all();
+        modePromise.then(function(response){
+            $rootScope.modeList = response.data.modes;
+        }, function(error){
+            console.log(error);
+        });
+
+        var regionPromise = regionListFactory.all();
+        regionPromise.then(function(response){
+            $rootScope.regionList = response.data.regions;
+        }, function(error){
+            console.log(error);
+        });
 
         $ionicPlatform.registerBackButtonAction(function(){
             if($state.current.name == 'login'){
@@ -143,6 +194,8 @@ app.controller('SearchCtrl', function($scope, $state, $http, $rootScope, $ionicL
         $http.get($rootScope.baseUrl + 'getsteamid/' + $rootScope.currentUserEmail + '/' + $scope.vanityName + '/' + $scope.saveId )
             .then(function(response){
                 if(response.data.success == 1){
+                    $rootScope.currentUserAccountId = response.data.accountid;
+                    $rootScope.currentUserSteamId = response.data.steamid;
                     $rootScope.hideLoading();
                     $state.transitionTo('results', {
                         steamId: response.data.steamid
@@ -205,7 +258,7 @@ app.controller('RegisterCtrl', function($scope, $state, $http, $rootScope){
 
 });
 
-app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $rootScope, $stateParams, matchResults, matchDetails){
+app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $rootScope, $stateParams, $q, matchResults, matchDetails){
 
     $scope.steamId = $stateParams.steamId; //Flascher should be 76561198011514271
     $scope.results = [];
@@ -220,7 +273,22 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
     }
 
     $scope.getResults = function(){
+        var resultData = [{}];
         $rootScope.showLoading();
+
+        $q.all([
+            getMatches(),
+            getMatchDetails()
+        ]).then(function(data){
+            resultData = data;
+            $rootScope.hideLoading();
+            $scope.results = resultData;
+        });
+    }
+
+    var getMatches = function(){
+        var matches = [];
+
         var promise = matchResults.all($scope.steamId);
         promise.then(function(response){
             if(response.data.response.success){
@@ -229,31 +297,75 @@ app.controller('ResultsCtrl', function($scope, $state, $http, $ionicModal, $root
                     $rootScope.hideLoading();
                     return;
                 }
-                var resultData = [];
-                var matches = response.data.result.matches;
-                for(var i = 0; i < matches.length; i++){
-
-                    var temp = {
-
-                    }
-
-                    var detPromise = matchDetails.all(matches[i].match_id);
-                    detPromise.then(function(response){
-                        if(response.data.response.success){
-                            var detailsData = [];
-                            var details = response;
-                        }
-                    })
-
-                    resultData.push(matches[i]);
-                }
+                matches = response.data.result.matches;
             }
-            $rootScope.hideLoading();
-            $scope.results = resultData;
         }, function(error){
             console.log(error);
         });
+
+        return matches;
     };
+
+    var getMatchDetails = function(matches){
+        var matchdetails = {};
+
+        //loop over every match in the array.
+        for(match in matches){
+            var detPromise = matchDetails.all(match.match_id);
+            detPromise.then(function(response){
+                if(response.data.response.success){
+                    var detailsData = [];
+                    var details = response.data.result;
+
+                    var currentPlayer = {};
+
+                    //find the player who whose match history this is
+                    for(var j = 0; j < details.players.length; j++){
+                        if(details.players[j].account_id == $rootScope.currentUserAccountId){
+                            currentPlayer = details.players[j];
+                            if(j <= 4) {
+                                currentPlayer.team = "radiant";
+                            } else {
+                                currentPlayer.team = "dire";
+                            }
+                        }
+                    }
+
+                    var tempDate = new Date(parseInt(details.start_time*1000));
+                    var today = new Date();
+
+                    var daysAgo = Math.round((today - tempDate)/(1000*60*60*24));
+
+                    var heroName = '';
+                    for(hero in $rootScope.heroList){
+                        if(hero.id == currentPlayer.hero_id){
+                            heroName = hero.localized_name;
+                        }
+                    }
+
+                    matchdetails.duration = details.duration;
+                    matchdetails.lobbyType = details.lobby_type;
+                    matchdetails.matchId = details.match_id;
+                    matchdetails.players = details.players;
+                    matchdetails.victory = ((details.radiant_victory && currentPlayer.team == "radiant")
+                                        || (!details.radiant_victory && currentPlayer.team == "dire"));
+                    matchdetails.daysAgo = daysAgo;
+                    matchdetails.kills = currentPlayer.kills;
+                    matchdetails.deaths = currentPlayer.deaths;
+                    matchdetails.assists = currentPlayer.assists;
+                    matchdetails.playerHero = heroName;
+                    matchdetails.playerheroId = currentPlayer.hero_id;
+
+                    match.matchdetails = matchdetails;
+                } else {
+                    //not really sure... assign default values?
+                }
+            }, function(error){
+                console.log(error);
+                //set temp's values to be default or something.
+            });
+        }
+    }
 
     $ionicModal.fromTemplateUrl('templates/result-help-modal.html', {
         scope: $scope,
@@ -289,6 +401,54 @@ app.factory('matchDetails', function($http){
     return {
         all: function(matchId){
             return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getmatchdetails/' + matchId);
+        }
+    }
+});
+
+app.factory('heroListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getherolist');
+        }
+    }
+});
+
+app.factory('abilityListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getabilitylist');
+        }
+    }
+});
+
+app.factory('itemListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getitemlist');
+        }
+    }
+});
+
+app.factory('lobbyListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getlobbylist');
+        }
+    }
+});
+
+app.factory('modeListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getmodelist');
+        }
+    }
+});
+
+app.factory('regionListFactory', function($http){
+    return {
+        all: function(){
+            return $http.get('https://true-sight.azurewebsites.net/api/steamapi/getregionlist');
         }
     }
 });

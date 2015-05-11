@@ -1,0 +1,34 @@
+<ion-modal-view>
+    <ion-header-bar class="bar-custom" align-title="left">
+        <div>
+            <h3 class="title">Finding Your Vanity Name</h3>
+            <div class="right">
+                <button id="closeHelpModal" class="nav-button dire" ng-click="closeModal()">
+                    <i class="ion-close-round"></i>
+                </button>
+            </div>
+        </div>
+    </ion-header-bar>
+    <ion-content>
+        <div id="helpDiv">
+            <span>Log into Steam and navigate to your profile page.</span>
+            <br>
+            <div class="padding">
+                In the URL you should see one of the following:
+                <br>
+                <ul style="font-size:.75em;list-style-type:circle;margin-left:25px;">
+                    <li>http://steamcommunity.com/id/[yourVanityName]</li>
+                    <li>http://steamcommunity.com/profiles/7656119xxxxxxxxxx</li>
+                </ul>
+                <br>
+                For example:
+                <img src="img/Example.png" alt="example" style="width:90%;display:block;margin-left:auto;margin-right:auto;">
+                <span style="font-size:.75em;">In this example you would only input ExampleVanityName</span>
+                <br>
+                <span style="font-size:.75em;">It would work the same way for the second example:</span>
+                <br>
+                <span style="font-size:.75em;">Just input the number after the /profiles/</span>
+            </div>
+        </div>
+    </ion-content>
+</ion-modal-view>
